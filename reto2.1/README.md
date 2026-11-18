@@ -7,7 +7,7 @@ Proyecto minimo para **Godot 4.7.2**. Utiliza un solo Label y un personaje cuadr
 - `Main.tscn`: escena principal.
 - `main.gd`: lee las entradas y actualiza el unico Hud.
 - `player_base.tscn`: escena reutilizable del personaje.
-- `player.gd`: movimiento horizontal.
+- `player.gd`: movimiento horizontal y salto con Space.
 - `ficha.md`: ficha del teclado, con fuentes.
 - `respuestas.md`: respuestas a las tres preguntas.
 - `.gitignore`: excluye la carpeta generada `.godot`.
@@ -47,7 +47,7 @@ En **Proyecto > Ajustes del proyecto > Mapa de entradas**, crea exactamente:
 
 Para cada accion, pulsa el boton de agregar evento, presiona la tecla correspondiente y acepta. No uses `space` como nombre de accion: el nombre que exige la consigna es `jump`.
 
-No hacen falta `move_up` ni `move_down`: el reto pide movimiento horizontal y mostrar la accion de salto.
+No hacen falta `move_up` ni `move_down`: se usan A/D para el movimiento horizontal y Space para saltar.
 
 ## 4. Crear player_base.tscn
 
@@ -120,16 +120,16 @@ Ambos archivos ya estan escritos en este proyecto. Leelos y asegurate de poder e
 | Mantener D | El personaje va a la derecha. Eje 1.00, fuerza derecha 1.00. |
 | Soltar D | El movimiento se detiene. Aumenta el contador del evento de liberacion. |
 | Mantener A | El personaje va a la izquierda. Eje -1.00, fuerza derecha 0.00. |
-| Mantener Space | `jump: true`. Al soltar: `false`. |
+| Pulsar Space | El personaje salta y vuelve a su altura inicial. `jump` muestra `true` mientras mantienes Space y `false` al soltar. |
 | Mantener D aproximadamente 2 s | Muchos cuadros pulsados y solo dos eventos desde cero: pulsar y soltar. |
 | Girar la rueda | Clase `InputEventMouseButton`, senal `Digital (paso de rueda)`. |
 | Hacer clic | Clase `InputEventMouseButton`, senal `Digital (clic)`. |
 | Mover el raton | Clase `InputEventMouseMotion`, senal `Posicion`. |
 | Pulsar teclas repetidamente por mantener D | El eco no aumenta el contador de eventos. |
 
-**El PDF exige mostrar el estado de jump, no implementar un salto fisico.** Por eso Space cambia el booleano del Hud y el personaje solo se desplaza horizontalmente.
+Space ahora hace saltar al personaje. La gravedad lo devuelve a su altura inicial, que funciona como suelo sin agregar nodos. No puede iniciar otro salto mientras esta en el aire ni saltar repetidamente por mantener Space. El booleano del Hud sigue mostrando si la tecla esta pulsada.
 
-Para probar la velocidad del Inspector: termina con F8, selecciona Player en Main, cambia **Velocidad**, y ejecuta Main otra vez con F6.
+Puedes ajustar **Fuerza salto** desde el Inspector del Player. Para probar la velocidad del Inspector: termina con F8, selecciona Player en Main, cambia **Velocidad**, y ejecuta Main otra vez con F6.
 
 El panel conserva el ultimo evento de teclado o raton. Un movimiento del raton posterior a un clic o un paso de rueda reemplazara el evento mostrado. Para observar la rueda, no muevas el raton inmediatamente despues.
 
@@ -221,10 +221,27 @@ func _input(event: InputEvent):
 extends CharacterBody2D
 
 @export var velocidad = 200.0
+@export var fuerza_salto = 400.0
 
-func _physics_process(_delta):
+var gravedad = 1000.0
+var suelo = 0.0
+
+func _ready():
+	# La altura inicial funciona como suelo, sin agregar mas nodos.
+	suelo = position.y
+
+func _physics_process(delta):
 	velocity.x = Input.get_axis("move_left", "move_right") * velocidad
-	velocity.y = 0
+
+	if Input.is_action_just_pressed("jump") and position.y >= suelo:
+		velocity.y = -fuerza_salto
+
+	velocity.y = velocity.y + gravedad * delta
 	move_and_slide()
+
+	if position.y > suelo:
+		position.y = suelo
+		velocity.y = 0
+
 	position.x = clampf(position.x, 20, get_viewport_rect().size.x - 20)
 ```

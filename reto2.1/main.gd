@@ -9,7 +9,7 @@ var dispositivo = "Teclado"
 var tipo_senal = "Digital"
 
 func _physics_process(_delta):
-	# Sondeo: contamos solo move_right, como pide el reto.
+	# Sondeo: contamos solo move_right
 	if Input.is_action_pressed("move_right"):
 		cuadro_pulsado = cuadro_pulsado + 1
 
@@ -21,8 +21,7 @@ func _physics_process(_delta):
 	label.text += "\nUltimo evento: %s\nDispositivo: %s\nSenal: %s" % [ultimo_evento, dispositivo, tipo_senal]
 	label.text += "\nCuadros con D: %d\nEventos de D: %d" % [cuadro_pulsado, eventos_recibidos]
 
-func _input(event: InputEvent):
-	# Ignora la repeticion automatica del teclado.
+func _input(event: InputEvent):	
 	if event.is_echo():
 		return
 
@@ -33,8 +32,7 @@ func _input(event: InputEvent):
 		dispositivo = "Teclado (ID %d)" % event.device
 		tipo_senal = "Digital"
 	elif event is InputEventMouseButton:
-		dispositivo = "Raton (ID %d)" % event.device
-		# La rueda tambien es InputEventMouseButton: se revisa primero.
+		dispositivo = "Raton (ID %d)" % event.device		
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
 			tipo_senal = "Digital (paso de rueda)"
 		else:

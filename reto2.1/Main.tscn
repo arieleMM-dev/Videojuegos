@@ -1,19 +1,18 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://vto0mp6usg0v"]
 
-[ext_resource type="Script" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://dioheagwflhra" path="res://main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://player_base.tscn" id="2_player"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=596419691]
 script = ExtResource("1_main")
 
-[node name="Hud" type="Label" parent="."]
+[node name="Hud" type="Label" parent="." unique_id=13267578]
 offset_left = 40.0
 offset_top = 40.0
 offset_right = 850.0
 offset_bottom = 330.0
-mouse_filter = 2
 theme_override_font_sizes/font_size = 24
 text = "Panel de entradas"
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=1349601712 instance=ExtResource("2_player")]
 position = Vector2(576, 500)
